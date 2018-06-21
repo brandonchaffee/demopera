@@ -56,10 +56,11 @@ contract Organization is EscrowToken  {
         uint256 _amount
     ) isOrganizationAdmin(_org) public {
         Organization storage o = orgs[_org];
-        require(o.totalContributions >= _amount);
-        o.totalContributions = o.totalContributions.sub(_amount);
+        require(o.contributionTotal >= _amount);
+        o.contributionTotal = o.contributionTotal.sub(_amount);
+        o.childContributions = o.childContributions.add(_amount);
         Project storage p = o.projects[_project];
-        p.totalContributions = p.totalContributions.add(_amount);
+        p.contributionTotal = p.contributionTotal.add(_amount);
         p.contributionOf[msg.sender] = _amount;
     }
 }

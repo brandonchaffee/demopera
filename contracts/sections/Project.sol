@@ -36,10 +36,11 @@ contract Project is EscrowToken  {
         uint256 _amount
     ) isProjectAdmin(_org, _project) public {
         Project storage p = orgs[_org].projects[_project];
-        require(p.totalContributions >= _amount);
-        p.totalContributions = p.totalContributions.sub(_amount);
+        require(p.contributionTotal >= _amount);
+        p.contributionTotal = p.contributionTotal.sub(_amount);
+        p.childContributions = p.childContributions.add(_amount);
         Task storage t = p.tasks[_task];
-        t.totalContributions = t.totalContributions.add(_amount);
+        t.contributionTotal = t.contributionTotal.add(_amount);
         t.contributionOf[msg.sender] = _amount;
     }
 
@@ -53,6 +54,6 @@ contract Project is EscrowToken  {
         Task storage t = orgs[_org].projects[_project].tasks[_task];
         address submitter = t.submissions[_submission].creator;
         depositTo(_amount, submitter);
-        t.totalContributions = t.totalContributions.sub(_amount);
+        t.contributionTotal = t.contributionTotal.sub(_amount);
     }
 }
