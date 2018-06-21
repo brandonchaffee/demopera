@@ -31,4 +31,9 @@ contract GenericStorage {
         mapping(address => uint256) contributionOf;
         Project[] projects;
     }
+
+    modifier validDetail(bytes32 details) {
+        require(details != bytes32(0));
+        _;
+    }
 }

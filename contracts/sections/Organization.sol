@@ -9,22 +9,34 @@ contract Organization is EscrowToken  {
     }
 
     ///Creation of Organization
-    function formOrganization(bytes32 _details) public {
+    function formOrganization(bytes32 _details)
+    validDetail(_details) public {
         Organization storage o = orgs[msg.sender];
+        require(o.details == bytes32(0));
         o.details = _details;
         o.isAdmin[msg.sender] = true;
     }
 
+    function modifyOrganization(
+        address _org,
+        bytes32 _details
+    ) isOrganizationAdmin(_org) validDetail(_details) public {
+        orgs[_org].details = _details;
+    }
     //Administration of Organization
-    function setOrgAdminStatus(address _admin, bool _status) public {
-        orgs[msg.sender].isAdmin[_admin] = _status;
+    function setOrgAdminStatus(
+        address _org,
+        address _admin,
+        bool _status
+    ) isOrganizationAdmin(_org) public {
+        orgs[_org].isAdmin[_admin] = _status;
     }
 
     //Organization Project Creation & Maintainence
     function createProject(
         address _org,
         bytes32 _details
-    ) isOrganizationAdmin(_org) public returns(uint256){
+    ) isOrganizationAdmin(_org) validDetail(_details) public returns(uint256){
         Organization storage o = orgs[_org];
         uint256 projectID = o.projects.length++;
         o.projects[projectID].details = _details;
@@ -36,9 +48,8 @@ contract Organization is EscrowToken  {
         address _org,
         uint256 _project,
         bytes32 _details
-    ) isOrganizationAdmin(_org) public {
-        Organization storage o = orgs[_org];
-        o.projects[_project].details = _details;
+    ) isOrganizationAdmin(_org) validDetail(_details) public {
+        orgs[_org].projects[_project].details = _details;
     }
 
     function setProjectAdminStatus(

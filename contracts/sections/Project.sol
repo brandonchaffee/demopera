@@ -24,7 +24,7 @@ contract Project is EscrowToken  {
         uint256 _project,
         uint256 _task,
         bytes32 _details
-    ) isProjectAdmin(_org, _project) public {
+    ) isProjectAdmin(_org, _project) validDetail(_details) public {
         Project storage p = orgs[_org].projects[_project];
         p.tasks[_task].details = _details;
     }
