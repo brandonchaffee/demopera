@@ -10,8 +10,10 @@ contract Contribution is EscrowToken  {
     ) public {
         hasSufficientBalance(_amount);
         Organization storage o = orgs[_org];
-        o.contributionOf[msg.sender] = _amount;
-        o.contributionTotal = o.contributionTotal.add(_amount);        withdrawFrom(_amount, msg.sender);
+        o.contributionOf[msg.sender] =
+        o.contributionOf[msg.sender].add(_amount);
+        o.contributionTotal = o.contributionTotal.add(_amount);
+        withdrawFrom(_amount, msg.sender);
     }
 
     function contributeToProject(
@@ -22,7 +24,8 @@ contract Contribution is EscrowToken  {
         hasSufficientBalance(_amount);
         Organization storage o = orgs[_org];
         Project storage p = o.projects[_project];
-        p.contributionOf[msg.sender] = _amount;
+        p.contributionOf[msg.sender] =
+        p.contributionOf[msg.sender].add(_amount);
         p.contributionTotal = p.contributionTotal.add(_amount);
         o.childContributions = o.childContributions.add(_amount);
         withdrawFrom(_amount, msg.sender);
@@ -37,7 +40,8 @@ contract Contribution is EscrowToken  {
         hasSufficientBalance(_amount);
         Project storage p = orgs[_org].projects[_project];
         Task storage t = p.tasks[_task];
-        t.contributionOf[msg.sender] = _amount;
+        t.contributionOf[msg.sender] =
+        t.contributionOf[msg.sender].add(_amount);
         t.contributionTotal = t.contributionTotal.add(_amount);
         p.childContributions = p.childContributions.add(_amount);
         withdrawFrom(_amount, msg.sender);
@@ -51,7 +55,8 @@ contract Contribution is EscrowToken  {
         require(o.contributionOf[msg.sender] >= _amount);
         require(o.contributionTotal >= _amount);
         o.contributionTotal = o.contributionTotal.sub(_amount);
-        o.contributionOf[msg.sender] = 0;
+        o.contributionOf[msg.sender] =
+        o.contributionOf[msg.sender].sub(_amount);
         depositTo(_amount, msg.sender);
     }
 
@@ -66,11 +71,12 @@ contract Contribution is EscrowToken  {
         require(p.contributionTotal >= _amount);
         p.contributionTotal = p.contributionTotal.sub(_amount);
         o.childContributions = o.childContributions.sub(_amount);
-        p.contributionOf[msg.sender] = 0;
+        p.contributionOf[msg.sender] =
+        p.contributionOf[msg.sender].sub(_amount);
         depositTo(_amount, msg.sender);
     }
 
-    function recallTaskContribuiton(
+    function recallTaskContribution(
         address _org,
         uint256 _project,
         uint256 _task,
@@ -82,7 +88,8 @@ contract Contribution is EscrowToken  {
         require(t.contributionTotal >= _amount);
         t.contributionTotal = t.contributionTotal.sub(_amount);
         p.childContributions = p.childContributions.sub(_amount);
-        t.contributionOf[msg.sender] = 0;
+        t.contributionOf[msg.sender] =
+        t.contributionOf[msg.sender].sub(_amount);
         depositTo(_amount, msg.sender);
     }
 }

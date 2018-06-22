@@ -28,8 +28,13 @@ function permissionBehavior (
       const details = formHex.rand(32)
       await OExpect(this.token.createProject(org, details, {from: sender}))
     })
-    it('disbtirube to projects', async function () {
-
+    it('distribute to projects', async function () {
+      const amount = 500
+      await this.token.transfer(sender, amount)
+      await this.token.contributeToOrganization(org, amount,
+        {from: sender})
+      await OExpect(this.token.distributeToProject(org, 0, amount,
+        {from: sender}))
     })
   })
   describe('Project' + textResult(PExpect), function () {
@@ -49,8 +54,13 @@ function permissionBehavior (
       const details = formHex.rand(32)
       await PExpect(this.token.createTask(org, 0, details, {from: sender}))
     })
-    it('disbtirube to task', async function () {
-
+    it('distribute to task', async function () {
+      const amount = 500
+      await this.token.transfer(sender, amount)
+      await this.token.contributeToProject(org, 0, amount,
+        {from: sender})
+      await PExpect(this.token.distributeToTask(org, 0, 0, amount,
+        {from: sender}))
     })
   })
   describe('Task' + textResult(TExpect), function () {

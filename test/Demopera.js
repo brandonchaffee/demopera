@@ -151,62 +151,356 @@ contract('Demopera', function (accounts) {
     })
   })
   describe('Contribution', function () {
-    it('fails without sufficient balance', async function () {
-
-    })
     describe('Organization', function () {
-      it('accounts total', async function () {
-
+      const creator = accounts[0]
+      const spender = accounts[1]
+      const conA = 400
+      const conB = 5000
+      beforeEach(async function () {
+        await this.token.formOrganization(DOrg)
+        await this.token.transfer(spender, 500)
       })
-      it('accounts for individuals', async function () {
-
+      describe('Contributing', function () {
+        it('fails without sufficient balance', async function () {
+          await assertRevert(this.token.contributeToOrganization(creator, 600,
+            {from: spender}))
+        })
+        it('withdraws from spender', async function () {
+          const preBalance = await this.token.balanceOf(spender)
+          await this.token.contributeToOrganization(creator, conA,
+            {from: spender})
+          const postBalance = await this.token.balanceOf(spender)
+          assert.equal(postBalance, preBalance - conA)
+        })
+        it('accounts total', async function () {
+          await this.token.contributeToOrganization(creator, conA)
+          await this.token.contributeToOrganization(creator, conB)
+          const total = await this.token.getTotalOrgContribution(creator)
+          assert.equal(total, conA + conB)
+        })
+        it('accounts for individuals', async function () {
+          await this.token.contributeToOrganization(creator, conA)
+          const output = await this.token.getOrgContribtuionOf(creator, creator)
+          assert.equal(conA, output)
+        })
+        it('accounts multiple by an individual', async function () {
+          await this.token.contributeToOrganization(creator, conA)
+          await this.token.contributeToOrganization(creator, conB)
+          const output = await this.token.getOrgContribtuionOf(creator, creator)
+          assert.equal(output.toNumber(), conA + conB)
+        })
       })
-      it('accounts multiple by an individual', async function () {
-
-      })
-      it('can be recalled', async function () {
-
+      describe('Recalling', function () {
+        const contribution = 300
+        const recall = 200
+        const excessRecall = 350
+        beforeEach(async function () {
+          await this.token.contributeToOrganization(creator, contribution,
+            {from: spender})
+        })
+        it('deposits back to spender', async function () {
+          const pre = await this.token.balanceOf(spender)
+          await this.token.recallOrgContribution(creator, recall,
+            {from: spender})
+          const post = await this.token.balanceOf(spender)
+          assert.equal(post.toNumber(), pre.toNumber() + recall)
+        })
+        it('reverts when exceeds contribution amount', async function () {
+          await assertRevert(this.token.recallOrgContribution(creator,
+            excessRecall, {from: spender}))
+        })
+        it('withdraws from contribtuion total', async function () {
+          const pre = await this.token.getTotalOrgContribution(creator)
+          await this.token.recallOrgContribution(creator, recall,
+            {from: spender})
+          const post = await this.token.getTotalOrgContribution(creator)
+          assert.equal(pre - recall, post)
+        })
+        it('decrements individual contribution', async function () {
+          const pre = await this.token.getOrgContribtuionOf(creator, spender)
+          await this.token.recallOrgContribution(creator, recall,
+            {from: spender})
+          const post = await this.token.getOrgContribtuionOf(creator, spender)
+          assert.equal(pre - recall, post)
+        })
       })
     })
     describe('Project', function () {
-      it('accounts total', async function () {
-
+      const creator = accounts[0]
+      const spender = accounts[1]
+      const conA = 400
+      const conB = 5000
+      beforeEach(async function () {
+        await this.token.formOrganization(DOrg)
+        await this.token.transfer(spender, 500)
+        await this.token.createProject(creator, DProject)
       })
-      it('accounts for individuals', async function () {
-
+      describe('Contributing', function () {
+        it('fails without sufficient balance', async function () {
+          await assertRevert(this.token.contributeToProject(creator, 0, 600,
+            {from: spender}))
+        })
+        it('withdraws from spender', async function () {
+          const preBalance = await this.token.balanceOf(spender)
+          await this.token.contributeToProject(creator, 0, conA,
+            {from: spender})
+          const postBalance = await this.token.balanceOf(spender)
+          assert.equal(postBalance, preBalance - conA)
+        })
+        it('accounts total', async function () {
+          await this.token.contributeToProject(creator, 0, conA)
+          await this.token.contributeToProject(creator, 0, conB)
+          const total = await this.token.getTotalProjectContribution(creator, 0)
+          assert.equal(total, conA + conB)
+        })
+        it('accounts for individuals', async function () {
+          await this.token.contributeToProject(creator, 0, conA)
+          const output = await this.token.getProjectContributionOf(creator,
+            0, creator)
+          assert.equal(conA, output)
+        })
+        it('accounts multiple by an individual', async function () {
+          await this.token.contributeToProject(creator, 0, conA)
+          await this.token.contributeToProject(creator, 0, conB)
+          const output = await this.token.getProjectContributionOf(creator,
+            0, creator)
+          assert.equal(output.toNumber(), conA + conB)
+        })
+        it('increments child contribution of org', async function () {
+          const pre = await this.token.getOrgChildContribution(creator)
+          await this.token.contributeToProject(creator, 0, conA,
+            {from: spender})
+          const post = await this.token.getOrgChildContribution(creator)
+          assert.equal(post.toNumber(), pre.toNumber() + conA)
+        })
       })
-      it('accounts multiple by an individual', async function () {
-
-      })
-      it('can be recalled', async function () {
-
-      })
-      it('accounts child contribtuion', async function () {
-
+      describe('Recalling', function () {
+        const contribution = 300
+        const recall = 200
+        const excessRecall = 350
+        beforeEach(async function () {
+          await this.token.contributeToProject(creator, 0, contribution,
+            {from: spender})
+        })
+        it('deposits back to spender', async function () {
+          const pre = await this.token.balanceOf(spender)
+          await this.token.recallProjectContribution(creator, 0, recall,
+            {from: spender})
+          const post = await this.token.balanceOf(spender)
+          assert.equal(post.toNumber(), pre.toNumber() + recall)
+        })
+        it('reverts when exceeds contribution amount', async function () {
+          await assertRevert(this.token.recallProjectContribution(creator, 0,
+            excessRecall, {from: spender}))
+        })
+        it('withdraws from contribution total', async function () {
+          const pre = await this.token.getTotalProjectContribution(creator, 0)
+          await this.token.recallProjectContribution(creator, 0, recall,
+            {from: spender})
+          const post = await this.token.getTotalProjectContribution(creator, 0)
+          assert.equal(pre - recall, post)
+        })
+        it('decrements individual contribution', async function () {
+          const pre = await this.token.getProjectContributionOf(creator, 0,
+            spender)
+          await this.token.recallProjectContribution(creator, 0, recall,
+            {from: spender})
+          const post = await this.token.getProjectContributionOf(creator, 0,
+            spender)
+          assert.equal(pre - recall, post)
+        })
+        it('decrements child contribution of org', async function () {
+          const pre = await this.token.getOrgChildContribution(creator)
+          await this.token.recallProjectContribution(creator, 0, recall,
+            {from: spender})
+          const post = await this.token.getOrgChildContribution(creator)
+          assert.equal(post.toNumber(), pre.toNumber() - recall)
+        })
       })
     })
     describe('Taks', function () {
-      it('accounts total', async function () {
-
+      const creator = accounts[0]
+      const spender = accounts[1]
+      const conA = 400
+      const conB = 5000
+      beforeEach(async function () {
+        await this.token.formOrganization(DOrg)
+        await this.token.transfer(spender, 500)
+        await this.token.createProject(creator, DProject)
+        await this.token.createTask(creator, 0, DTask)
       })
-      it('accounts for individuals', async function () {
-
+      describe('Contributing', function () {
+        it('fails without sufficient balance', async function () {
+          await assertRevert(this.token.contributeToTask(creator, 0, 0, 600,
+            {from: spender}))
+        })
+        it('withdraws from spender', async function () {
+          const preBalance = await this.token.balanceOf(spender)
+          await this.token.contributeToTask(creator, 0, 0, conA,
+            {from: spender})
+          const postBalance = await this.token.balanceOf(spender)
+          assert.equal(postBalance, preBalance - conA)
+        })
+        it('accounts total', async function () {
+          await this.token.contributeToTask(creator, 0, 0, conA)
+          await this.token.contributeToTask(creator, 0, 0, conB)
+          const total = await this.token.getTotalTaskContribution(creator,
+            0, 0)
+          assert.equal(total, conA + conB)
+        })
+        it('accounts for individuals', async function () {
+          await this.token.contributeToTask(creator, 0, 0, conA)
+          const output = await this.token.getTaskContributionOf(creator,
+            0, 0, creator)
+          assert.equal(conA, output)
+        })
+        it('accounts multiple by an individual', async function () {
+          await this.token.contributeToTask(creator, 0, 0, conA)
+          await this.token.contributeToTask(creator, 0, 0, conB)
+          const output = await this.token.getTaskContributionOf(creator,
+            0, 0, creator)
+          assert.equal(output.toNumber(), conA + conB)
+        })
+        it('increments child contribution of org', async function () {
+          const pre = await this.token.getProjectChildContribution(creator, 0)
+          await this.token.contributeToTask(creator, 0, 0, conA,
+            {from: spender})
+          const post = await this.token.getProjectChildContribution(creator, 0)
+          assert.equal(post.toNumber(), pre.toNumber() + conA)
+        })
       })
-      it('accounts multiple by an individual', async function () {
-
-      })
-      it('can be recalled', async function () {
-
-      })
-      it('accounts child contribtuion', async function () {
-
+      describe('Recalling', function () {
+        const contribution = 300
+        const recall = 200
+        const excessRecall = 350
+        beforeEach(async function () {
+          await this.token.contributeToTask(creator, 0, 0, contribution,
+            {from: spender})
+        })
+        it('deposits back to spender', async function () {
+          const pre = await this.token.balanceOf(spender)
+          await this.token.recallTaskContribution(creator, 0, 0, recall,
+            {from: spender})
+          const post = await this.token.balanceOf(spender)
+          assert.equal(post.toNumber(), pre.toNumber() + recall)
+        })
+        it('reverts when exceeds contribution amount', async function () {
+          await assertRevert(this.token.recallTaskContribution(creator, 0,
+            0, excessRecall, {from: spender}))
+        })
+        it('withdraws from contribution total', async function () {
+          const pre = await this.token.getTotalTaskContribution(creator,
+            0, 0)
+          await this.token.recallTaskContribution(creator, 0, 0, recall,
+            {from: spender})
+          const post = await this.token.getTotalTaskContribution(creator, 0,
+            0)
+          assert.equal(pre - recall, post)
+        })
+        it('decrements individual contribution', async function () {
+          const pre = await this.token.getTaskContributionOf(creator, 0, 0,
+            spender)
+          await this.token.recallTaskContribution(creator, 0, 0, recall,
+            {from: spender})
+          const post = await this.token.getTaskContributionOf(creator, 0, 0,
+            spender)
+          assert.equal(pre - recall, post)
+        })
+        it('decrements child contribution of org', async function () {
+          const pre = await this.token.getProjectChildContribution(creator, 0)
+          await this.token.recallTaskContribution(creator, 0, 0, recall,
+            {from: spender})
+          const post = await this.token.getProjectChildContribution(creator, 0)
+          assert.equal(post.toNumber(), pre.toNumber() - recall)
+        })
       })
     })
   })
   describe('Distribution', function () {
+    const creator = accounts[0]
+    const contribution = 500
+    const distribution = 400
+    const pID = 0
     beforeEach(async function () {
-
+      await this.token.formOrganization(DOrg)
+      await this.token.createProject(creator, DProject)
+      await this.token.createTask(creator, pID, DTask)
     })
+    describe('To Project', function () {
+      beforeEach(async function () {
+        await this.token.contributeToOrganization(creator, contribution)
+        await this.token.contributeToProject(creator, 0, 1000)
+      })
+      it('fails without sufficient contribution', async function () {
+        const excess = 700
+        await assertRevert(this.token.distributeToProject(creator, 0, excess))
+      })
+      it('decrements organization total', async function () {
+        const pre = await this.token.getTotalOrgContribution(creator)
+        await this.token.distributeToProject(creator, 0, distribution)
+        const post = await this.token.getTotalOrgContribution(creator)
+        assert.equal(post, pre - distribution)
+      })
+      it('increments project total', async function () {
+        const pre = await this.token.getTotalProjectContribution(creator, 0)
+        await this.token.distributeToProject(creator, 0, distribution)
+        const post = await this.token.getTotalProjectContribution(creator, 0)
+        assert.equal(post.toNumber(), pre.toNumber() + distribution)
+      })
+      it('increments organization child total', async function () {
+        const pre = await this.token.getOrgChildContribution(creator)
+        await this.token.distributeToProject(creator, 0, distribution)
+        const post = await this.token.getOrgChildContribution(creator)
+        assert.equal(post.toNumber(), pre.toNumber() + distribution)
+      })
+      it('increments project contribtuion of sender', async function () {
+        const pre = await this.token.getProjectContributionOf(creator, 0,
+          creator)
+        await this.token.distributeToProject(creator, 0, distribution)
+        const post = await this.token.getProjectContributionOf(creator, 0,
+          creator)
+        assert.equal(post.toNumber(), pre.toNumber() + distribution)
+      })
+    })
+    describe('To Task', function () {
+      beforeEach(async function () {
+        await this.token.contributeToProject(creator, 0, contribution)
+        await this.token.contributeToTask(creator, 0, 0, 1000)
+      })
+      it('fails without sufficient contribution', async function () {
+        const excess = 700
+        await assertRevert(this.token.distributeToTask(creator, 0, 0, excess))
+      })
+      it('decrements project total', async function () {
+        const pre = await this.token.getTotalProjectContribution(creator, 0)
+        await this.token.distributeToTask(creator, 0, 0, distribution)
+        const post = await this.token.getTotalProjectContribution(creator, 0)
+        assert.equal(post, pre - distribution)
+      })
+      it('increments task total', async function () {
+        const pre = await this.token.getTotalTaskContribution(creator, 0, 0)
+        await this.token.distributeToTask(creator, 0, 0, distribution)
+        const post = await this.token.getTotalTaskContribution(creator, 0, 0)
+        assert.equal(post.toNumber(), pre.toNumber() + distribution)
+      })
+      it('increments project child total', async function () {
+        const pre = await this.token.getProjectChildContribution(creator, 0)
+        await this.token.distributeToTask(creator, 0, 0, distribution)
+        const post = await this.token.getProjectChildContribution(creator, 0)
+        assert.equal(post.toNumber(), pre.toNumber() + distribution)
+      })
+      it('increments task contribtuion of sender', async function () {
+        const pre = await this.token.getTaskContributionOf(creator, 0, 0,
+          creator)
+        await this.token.distributeToTask(creator, 0, 0, distribution)
+        const post = await this.token.getTaskContributionOf(creator, 0, 0,
+          creator)
+        assert.equal(post.toNumber(), pre.toNumber() + distribution)
+      })
+    })
+  })
+  describe('Submission', function () {
+
   })
   standardTokenBehavior(
     supply, accounts[0], accounts[1], accounts[2], ZERO_ADDRESS

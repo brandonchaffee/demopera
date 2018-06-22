@@ -44,8 +44,6 @@ contract Organization is EscrowToken  {
         return projectID;
     }
 
-
-
     function distributeToProject(
         address _org,
         uint256 _project,
@@ -57,6 +55,6 @@ contract Organization is EscrowToken  {
         o.childContributions = o.childContributions.add(_amount);
         Project storage p = o.projects[_project];
         p.contributionTotal = p.contributionTotal.add(_amount);
-        p.contributionOf[msg.sender] = _amount;
+        p.contributionOf[msg.sender] = p.contributionOf[msg.sender].add(_amount);
     }
 }

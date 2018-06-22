@@ -5,7 +5,7 @@ import "./GenericStorage.sol";
 
 contract EscrowToken is StandardToken, GenericStorage {
 	function hasSufficientBalance(uint256 _amount) public view returns(bool){
-		return balances[msg.sender] >= _amount;
+		require(balances[msg.sender] >= _amount);
 	}
 
 	function withdrawFrom(uint256 _amount, address _target) internal {
