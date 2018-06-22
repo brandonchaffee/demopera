@@ -91,4 +91,14 @@ contract Gettable is GenericStorage  {
     ) public view returns(uint256){
         return orgs[_org].projects[_project].childContributions;
     }
+
+    function getSubmissionDetails(
+        address _org,
+        uint256 _project,
+        uint256 _task,
+        uint256 _submission
+    ) public view returns(bytes32) {
+        return orgs[_org].projects[_project].tasks[_task].submissions
+        [_submission].details;
+    }
 }

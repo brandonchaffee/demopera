@@ -12,6 +12,7 @@ const supply = 50000
 const DOrg = formHex.rand(32)
 const DProject = formHex.rand(32)
 const DTask = formHex.rand(32)
+const DSub = formHex.rand(32)
 
 contract('Demopera', function (accounts) {
   beforeEach(async function () {
@@ -500,6 +501,58 @@ contract('Demopera', function (accounts) {
     })
   })
   describe('Submission', function () {
+    const creator = accounts[0]
+    const submitter = accounts[1]
+    beforeEach(async function () {
+      await this.token.formOrganization(DOrg)
+      await this.token.createProject(creator, DProject)
+      await this.token.createTask(creator, 0, DTask)
+      await this.token.createSubmission(creator, 0, 0, DSub,
+        {from: submitter})
+    })
+    it('sets details on initialization', async function () {
+      const DOutput = await this.token.getSubmissionDetails(creator, 0, 0, 0)
+      assert.equal(DOutput, DSub)
+    })
+    it('details can be modified by creator', async function () {
+      const DInput = formHex.rand(32)
+      await this.token.modifySubmission(creator, 0, 0, 0, DInput,
+        {from: submitter})
+      const DOutput = await this.token.getSubmissionDetails(creator, 0, 0, 0)
+      assert.equal(DOutput, DInput)
+    })
+    it('reverts modification by non-creator', async function () {
+      const DInput = formHex.rand(32)
+      await assertRevert(this.token.modifySubmission(creator, 0, 0, 0, DInput))
+    })
+  })
+  describe('Disbursement', function () {
+    const creator = accounts[0]
+    const submitter = accounts[1]
+    beforeEach(async function () {
+      await this.token.formOrganization(DOrg)
+      await this.token.createProject(creator, DProject)
+      await this.token.createTask(creator, 0, DTask)
+      await this.token.createSubmission(creator, 0, 0, DSub, {from: submitter})
+      await this.token.contributeToTask(creator, 0, 0, 500)
+    })
+    it('deposits to creator', async function () {
+      const amount = 200
+      const pre = await this.token.balanceOf(submitter)
+      await this.token.disbursePayment(creator, 0, 0, 0, amount)
+      const post = await this.token.balanceOf(submitter)
+      assert.equal(post.toNumber(), pre.toNumber() + amount)
+    })
+    it('reverts if exceeds contribution amount', async function () {
+      const amount = 700
+      await assertRevert(this.token.disbursePayment(creator, 0, 0, 0,
+        amount))
+    })
+    it('decrements task contribution total', async function () {
+
+    })
+  })
+  describe('Moderation', function () {
 
   })
   standardTokenBehavior(

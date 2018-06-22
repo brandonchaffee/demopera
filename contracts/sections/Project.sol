@@ -69,9 +69,12 @@ contract Project is EscrowToken  {
         uint256 _submission,
         uint256 _amount
     ) isProjectAdmin(_org, _project) public {
-        Task storage t = orgs[_org].projects[_project].tasks[_task];
+        Project storage p = orgs[_org].projects[_project];
+        Task storage t = p.tasks[_task];
+        require(t.contributionTotal >= _amount);
         address submitter = t.submissions[_submission].creator;
         depositTo(_amount, submitter);
+        p.childContributions = p.childContributions.sub(_amount);
         t.contributionTotal = t.contributionTotal.sub(_amount);
     }
 }
