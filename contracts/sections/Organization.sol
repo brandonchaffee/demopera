@@ -44,22 +44,7 @@ contract Organization is EscrowToken  {
         return projectID;
     }
 
-    function modifyProject(
-        address _org,
-        uint256 _project,
-        bytes32 _details
-    ) isOrganizationAdmin(_org) validDetail(_details) public {
-        orgs[_org].projects[_project].details = _details;
-    }
 
-    function setProjectAdminStatus(
-        address _org,
-        uint256 _project,
-        address _admin,
-        bool _status
-    ) isOrganizationAdmin(_org) public {
-        orgs[_org].projects[_project].isAdmin[_admin] = _status;
-    }
 
     function distributeToProject(
         address _org,

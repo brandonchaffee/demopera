@@ -8,6 +8,23 @@ contract Project is EscrowToken  {
         _;
     }
 
+    function modifyProject(
+        address _org,
+        uint256 _project,
+        bytes32 _details
+    ) isProjectAdmin(_org, _project) validDetail(_details) public {
+        orgs[_org].projects[_project].details = _details;
+    }
+
+    function setProjectAdminStatus(
+        address _org,
+        uint256 _project,
+        address _admin,
+        bool _status
+    ) isProjectAdmin(_org, _project) public {
+        orgs[_org].projects[_project].isAdmin[_admin] = _status;
+    }
+
     function createTask(
         address _org,
         uint256 _project,
