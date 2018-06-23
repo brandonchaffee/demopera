@@ -58,8 +58,8 @@ contract Project is EscrowToken  {
         p.childContributions = p.childContributions.add(_amount);
         Task storage t = p.tasks[_task];
         t.contributionTotal = t.contributionTotal.add(_amount);
-        t.contributionOf[msg.sender] =
-        t.contributionOf[msg.sender].add(_amount);
+        t.contributionOf[msg.sender].self =
+        t.contributionOf[msg.sender].self.add(_amount);
     }
 
     function disbursePayment(

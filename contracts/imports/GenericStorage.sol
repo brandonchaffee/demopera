@@ -12,10 +12,16 @@ contract GenericStorage {
         uint256 amount;
         uint256 unlockTime;
     }
+
+    struct Contribution {
+        uint256 self;
+        uint256 child;
+    }
+
     struct Task {
         bytes32 details;
         uint256 contributionTotal;
-        mapping(address => uint256) contributionOf;
+        mapping(address => Contribution) contributionOf;
         mapping(address => Payment) payments;
         Submission[] submissions;
     }
@@ -25,7 +31,7 @@ contract GenericStorage {
         uint256 childContributions;
         uint256 contributionTotal;
         mapping(address => bool) isAdmin;
-        mapping(address => uint256) contributionOf;
+        mapping(address => Contribution) contributionOf;
         Task[] tasks;
     }
 
@@ -34,7 +40,7 @@ contract GenericStorage {
         uint256 childContributions;
         uint256 contributionTotal;
         mapping(address => bool) isAdmin;
-        mapping(address => uint256) contributionOf;
+        mapping(address => Contribution) contributionOf;
         Project[] projects;
     }
 

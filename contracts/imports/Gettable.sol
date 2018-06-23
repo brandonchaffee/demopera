@@ -22,7 +22,7 @@ contract Gettable is GenericStorage  {
         address _org,
         address _target
     ) public view returns(uint256){
-        return orgs[_org].contributionOf[_target];
+        return orgs[_org].contributionOf[_target].self;
     }
 
     function getProjectContributionOf(
@@ -30,7 +30,7 @@ contract Gettable is GenericStorage  {
         uint256 _project,
         address _target
     ) public view returns(uint256){
-        return orgs[_org].projects[_project].contributionOf[_target];
+        return orgs[_org].projects[_project].contributionOf[_target].self;
     }
 
     function getTaskContributionOf(
@@ -40,7 +40,22 @@ contract Gettable is GenericStorage  {
         address _target
     ) public view returns(uint256){
         return
-        orgs[_org].projects[_project].tasks[_task].contributionOf[_target];
+        orgs[_org].projects[_project].tasks[_task].contributionOf[_target].self;
+    }
+
+    function getOrgChildContributionOf(
+        address _org,
+        address _target
+    ) public view returns(uint256){
+        return orgs[_org].contributionOf[_target].child;
+    }
+
+    function getProjectChildContributionsOf(
+        address _org,
+        uint256 _project,
+        address _target
+    ) public view returns(uint256){
+        return orgs[_org].projects[_project].contributionOf[_target].child;
     }
 
     function getTotalOrgContribution(
