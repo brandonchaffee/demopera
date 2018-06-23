@@ -1,6 +1,6 @@
-// import { advanceBlock } from './helpers/advanceToBlock'
-// import { increaseTimeTo, duration } from './helpers/increaseTime'
-// import latestTime from './helpers/latestTime'
+import { advanceBlock } from './helpers/advanceToBlock'
+import { increaseTimeTo, duration } from './helpers/increaseTime'
+import latestTime from './helpers/latestTime'
 import assertRevert from './helpers/assertRevert'
 import formHex from './helpers/formHex'
 
@@ -9,6 +9,7 @@ const permissionBehavior = require('./behaviors/permissionBehavior.js')
 const standardTokenBehavior = require('./behaviors/StandardToken.js')
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 const supply = 50000
+const lockout = 10000
 const DOrg = formHex.rand(32)
 const DProject = formHex.rand(32)
 const DTask = formHex.rand(32)
@@ -16,7 +17,10 @@ const DSub = formHex.rand(32)
 
 contract('Demopera', function (accounts) {
   beforeEach(async function () {
-    this.token = await Demopera.new(supply)
+    await advanceBlock()
+    this.midTime = latestTime() + duration.minutes(10)
+    this.endTime = latestTime() + duration.days(1)
+    this.token = await Demopera.new(supply, lockout)
   })
   describe('Organization', function () {
     const creator = accounts[0]
@@ -127,12 +131,14 @@ contract('Demopera', function (accounts) {
     const projectAdmin = accounts[2]
     const nonAdmin = accounts[3]
     const target = accounts[4]
+    const submitter = accounts[5]
     beforeEach(async function () {
       await this.token.formOrganization(DOrg)
       await this.token.createProject(uniAdmin, DProject)
       await this.token.createTask(uniAdmin, 0, DTask)
       await this.token.setOrgAdminStatus(uniAdmin, orgAdmin, true)
       await this.token.setProjectAdminStatus(uniAdmin, 0, projectAdmin, true)
+      await this.token.createSubmission(uniAdmin, 0, 0, DSub, {from: submitter})
     })
     describe('Organization Admin', function () {
       permissionBehavior(
@@ -526,9 +532,10 @@ contract('Demopera', function (accounts) {
       await assertRevert(this.token.modifySubmission(creator, 0, 0, 0, DInput))
     })
   })
-  describe('Disbursement', function () {
+  describe('Payment', function () {
     const creator = accounts[0]
     const submitter = accounts[1]
+    const payment = 300
     beforeEach(async function () {
       await this.token.formOrganization(DOrg)
       await this.token.createProject(creator, DProject)
@@ -536,20 +543,61 @@ contract('Demopera', function (accounts) {
       await this.token.createSubmission(creator, 0, 0, DSub, {from: submitter})
       await this.token.contributeToTask(creator, 0, 0, 500)
     })
-    it('deposits to creator', async function () {
-      const amount = 200
-      const pre = await this.token.balanceOf(submitter)
-      await this.token.disbursePayment(creator, 0, 0, 0, amount)
-      const post = await this.token.balanceOf(submitter)
-      assert.equal(post.toNumber(), pre.toNumber() + amount)
+    describe('Disbursing', function () {
+      it('reverts if exceeds contribution amount', async function () {
+        const amount = 700
+        await assertRevert(this.token.disbursePayment(creator, 0, 0, 0, amount))
+      })
+      it('sets payment amount', async function () {
+        await this.token.disbursePayment(creator, 0, 0, 0, payment)
+        const POutput = await this.token.getPaymentAmount(creator, 0, 0,
+          submitter)
+        assert.equal(POutput, payment)
+      })
+      it('sets unlock time', async function () {
+        await this.token.disbursePayment(creator, 0, 0, 0, payment)
+        const unlock = await this.token.getPaymentUnlockTime(creator, 0, 0,
+          submitter)
+        assert.equal(unlock, lockout + latestTime())
+      })
     })
-    it('reverts if exceeds contribution amount', async function () {
-      const amount = 700
-      await assertRevert(this.token.disbursePayment(creator, 0, 0, 0,
-        amount))
-    })
-    it('decrements task contribution total', async function () {
-
+    describe('Retrieval', function () {
+      beforeEach(async function () {
+        await this.token.disbursePayment(creator, 0, 0, 0, payment)
+      })
+      it('reverts within unlock window', async function () {
+        await increaseTimeTo(this.midTime)
+        await assertRevert(this.token.retrievePayment(creator, 0, 0,
+          {from: submitter}))
+      })
+      it('deposits to creator', async function () {
+        await increaseTimeTo(this.endTime)
+        const pre = await this.token.balanceOf(submitter)
+        await this.token.retrievePayment(creator, 0, 0, {from: submitter})
+        const post = await this.token.balanceOf(submitter)
+        assert.equal(post.toNumber(), pre.toNumber() + payment)
+      })
+      it('decrements task contribution total', async function () {
+        await increaseTimeTo(this.endTime)
+        const pre = await this.token.getTotalTaskContribution(creator, 0, 0)
+        await this.token.retrievePayment(creator, 0, 0, {from: submitter})
+        const post = await this.token.getTotalTaskContribution(creator, 0, 0)
+        assert.equal(post.toNumber(), pre.toNumber() - payment)
+      })
+      it('decrements project child contribution total', async function () {
+        await increaseTimeTo(this.endTime)
+        const pre = await this.token.getProjectChildContribution(creator, 0)
+        await this.token.retrievePayment(creator, 0, 0, {from: submitter})
+        const post = await this.token.getProjectChildContribution(creator, 0)
+        assert.equal(post.toNumber(), pre.toNumber() - payment)
+      })
+      it('zeros payment after retrieval', async function () {
+        await increaseTimeTo(this.endTime)
+        await this.token.retrievePayment(creator, 0, 0, {from: submitter})
+        const POutput = await this.token.getPaymentAmount(creator, 0, 0,
+          submitter)
+        assert.equal(POutput, 0)
+      })
     })
   })
   describe('Moderation', function () {

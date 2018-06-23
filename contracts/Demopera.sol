@@ -8,8 +8,9 @@ import "./imports/Gettable.sol";
 
 contract Demopera is Organization, Project, Submission, Contribution, Gettable
 {
-    constructor(uint256 supply) public {
+    constructor(uint256 supply, uint256 lockout) public {
         totalSupply_ = supply;
         balances[msg.sender] = supply;
+        paymentLockout = lockout;
     }
 }

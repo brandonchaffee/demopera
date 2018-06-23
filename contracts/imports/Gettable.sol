@@ -101,4 +101,24 @@ contract Gettable is GenericStorage  {
         return orgs[_org].projects[_project].tasks[_task].submissions
         [_submission].details;
     }
+
+    function getPaymentUnlockTime(
+        address _org,
+        uint256 _project,
+        uint256 _task,
+        address _payee
+    ) public view returns(uint256) {
+        return
+        orgs[_org].projects[_project].tasks[_task].payments[_payee].unlockTime;
+    }
+
+    function getPaymentAmount(
+        address _org,
+        uint256 _project,
+        uint256 _task,
+        address _payee
+    ) public view returns(uint256) {
+        return
+        orgs[_org].projects[_project].tasks[_task].payments[_payee].amount;
+    }
 }

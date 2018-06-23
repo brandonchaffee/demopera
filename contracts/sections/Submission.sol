@@ -1,8 +1,8 @@
 pragma solidity ^0.4.23;
 
-import "../imports/GenericStorage.sol";
+import "../imports/EscrowToken.sol";
 
-contract Submission is GenericStorage  {
+contract Submission is EscrowToken  {
     function createSubmission(
         address _org,
         uint256 _project,
@@ -26,5 +26,20 @@ contract Submission is GenericStorage  {
         Task storage t = orgs[_org].projects[_project].tasks[_task];
         require(t.submissions[_submission].creator == msg.sender);
         t.submissions[_submission].details = _details;
+    }
+
+    function retrievePayment(
+        address _org,
+        uint256 _project,
+        uint256 _task
+    ) public {
+        Project storage p = orgs[_org].projects[_project];
+        Task storage t = p.tasks[_task];
+        require(now > t.payments[msg.sender].unlockTime);
+        uint256 _amount = t.payments[msg.sender].amount;
+        depositTo(_amount, msg.sender);
+        p.childContributions = p.childContributions.sub(_amount);
+        t.contributionTotal = t.contributionTotal.sub(_amount);
+        t.payments[msg.sender].amount = 0;
     }
 }

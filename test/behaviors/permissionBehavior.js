@@ -69,7 +69,10 @@ function permissionBehavior (
       await PExpect(this.token.modifyTask(org, 0, 0, details, {from: sender}))
     })
     it('disburse payment', async function () {
-
+      const payment = 500
+      await this.token.contributeToTask(org, 0, 0, payment)
+      await PExpect(this.token.disbursePayment(org, 0, 0, 0, payment,
+        {from: sender}))
     })
   })
 }

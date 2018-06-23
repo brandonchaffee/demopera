@@ -73,8 +73,6 @@ contract Project is EscrowToken  {
         Task storage t = p.tasks[_task];
         require(t.contributionTotal >= _amount);
         address submitter = t.submissions[_submission].creator;
-        depositTo(_amount, submitter);
-        p.childContributions = p.childContributions.sub(_amount);
-        t.contributionTotal = t.contributionTotal.sub(_amount);
+        t.payments[submitter] = Payment(_amount, now + paymentLockout);
     }
 }
