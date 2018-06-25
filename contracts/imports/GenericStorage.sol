@@ -18,6 +18,11 @@ contract GenericStorage {
         uint256 child;
     }
 
+    struct Admin {
+        bool isValid;
+        uint256 removalVotes;
+    }
+
     struct Task {
         bytes32 details;
         uint256 contributionTotal;
@@ -30,7 +35,7 @@ contract GenericStorage {
         bytes32 details;
         uint256 childContributions;
         uint256 contributionTotal;
-        mapping(address => bool) isAdmin;
+        mapping(address => Admin) admin;
         mapping(address => Contribution) contributionOf;
         Task[] tasks;
     }
@@ -39,7 +44,7 @@ contract GenericStorage {
         bytes32 details;
         uint256 childContributions;
         uint256 contributionTotal;
-        mapping(address => bool) isAdmin;
+        mapping(address => Admin) admin;
         mapping(address => Contribution) contributionOf;
         Project[] projects;
     }

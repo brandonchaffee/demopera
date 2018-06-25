@@ -4,7 +4,7 @@ import "../imports/EscrowToken.sol";
 
 contract Organization is EscrowToken  {
     modifier isOrganizationAdmin(address _org) {
-        require(orgs[_org].isAdmin[msg.sender]);
+        require(orgs[_org].admin[msg.sender].isValid);
         _;
     }
 
@@ -14,7 +14,7 @@ contract Organization is EscrowToken  {
         Organization storage o = orgs[msg.sender];
         require(o.details == bytes32(0));
         o.details = _details;
-        o.isAdmin[msg.sender] = true;
+        o.admin[msg.sender].isValid = true;
     }
 
     function modifyOrganization(
@@ -29,7 +29,7 @@ contract Organization is EscrowToken  {
         address _admin,
         bool _status
     ) isOrganizationAdmin(_org) public {
-        orgs[_org].isAdmin[_admin] = _status;
+        orgs[_org].admin[_admin].isValid = _status;
     }
 
     //Organization Project Creation & Maintainence
@@ -40,7 +40,7 @@ contract Organization is EscrowToken  {
         Organization storage o = orgs[_org];
         uint256 projectID = o.projects.length++;
         o.projects[projectID].details = _details;
-        o.projects[projectID].isAdmin[msg.sender] = true;
+        o.projects[projectID].admin[msg.sender].isValid = true;
         return projectID;
     }
 
@@ -56,5 +56,7 @@ contract Organization is EscrowToken  {
         Project storage p = o.projects[_project];
         p.contributionTotal = p.contributionTotal.add(_amount);
         p.contributionOf[msg.sender].self = p.contributionOf[msg.sender].self.add(_amount);
+        o.contributionOf[msg.sender].child =
+        o.contributionOf[msg.sender].child.add(_amount);
     }
 }

@@ -7,7 +7,7 @@ contract Gettable is GenericStorage  {
         address _org,
         address _target
     ) public view returns(bool){
-        return orgs[_org].isAdmin[_target];
+        return orgs[_org].admin[_target].isValid;
     }
 
     function getProjectAdminStatus(
@@ -15,7 +15,7 @@ contract Gettable is GenericStorage  {
         uint256 _project,
         address _target
     ) public view returns(bool){
-        return orgs[_org].projects[_project].isAdmin[_target];
+        return orgs[_org].projects[_project].admin[_target].isValid;
     }
 
     function getOrgContribtuionOf(

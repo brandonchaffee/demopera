@@ -4,9 +4,16 @@ import "./sections/Organization.sol";
 import "./sections/Project.sol";
 import "./sections/Submission.sol";
 import "./sections/Contribution.sol";
+import "./sections/Moderation.sol";
 import "./imports/Gettable.sol";
 
-contract Demopera is Organization, Project, Submission, Contribution, Gettable
+contract Demopera is
+    Organization,
+    Project,
+    Submission,
+    Contribution,
+    Moderation,
+    Gettable
 {
     constructor(uint256 supply, uint256 lockout) public {
         totalSupply_ = supply;
