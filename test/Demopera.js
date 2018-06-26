@@ -405,16 +405,30 @@ contract('Demopera', function (accounts) {
   //       await assertRevert(this.token.distributeToProject(creator, 0, excess))
   //     })
   //     it('decrements organization total', async function () {
-  //       const pre = await this.token.orgs(creator)
+  //       const pre = await this.token.getTotalOrgContribution(creator)
   //       await this.token.distributeToProject(creator, 0, distribution)
-  //       const post = await this.token.orgs(creator)
-  //       assert.equal(post[1], pre[1] - distribution)
+  //       const post = await this.token.getTotalOrgContribution(creator)
+  //       assert.equal(post, pre - distribution)
   //     })
   //     it('increments project total', async function () {
-  //       const pre = await this.token.getProject(creator, 0)
+  //       const pre = await this.token.getTotalProjectContribution(creator, 0)
   //       await this.token.distributeToProject(creator, 0, distribution)
-  //       const post = await this.token.getProject(creator, 0)
-  //       assert.equal(post[1].toNumber(), pre[1].toNumber() + distribution)
+  //       const post = await this.token.getTotalProjectContribution(creator, 0)
+  //       assert.equal(post.toNumber(), pre.toNumber() + distribution)
+  //     })
+  //     it('increments organization child total', async function () {
+  //       const pre = await this.token.getOrgChildContribution(creator)
+  //       await this.token.distributeToProject(creator, 0, distribution)
+  //       const post = await this.token.getOrgChildContribution(creator)
+  //       assert.equal(post.toNumber(), pre.toNumber() + distribution)
+  //     })
+  //     it('increments project contribtuion of sender', async function () {
+  //       const pre = await this.token.getProjectContributionOf(creator, 0,
+  //         creator)
+  //       await this.token.distributeToProject(creator, 0, distribution)
+  //       const post = await this.token.getProjectContributionOf(creator, 0,
+  //         creator)
+  //       assert.equal(post.toNumber(), pre.toNumber() + distribution)
   //     })
   //   })
   //   describe('To Task', function () {
@@ -438,6 +452,20 @@ contract('Demopera', function (accounts) {
   //       const post = await this.token.getTotalTaskContribution(creator, 0, 0)
   //       assert.equal(post.toNumber(), pre.toNumber() + distribution)
   //     })
+  //     it('increments project child total', async function () {
+  //       const pre = await this.token.getProjectChildContribution(creator, 0)
+  //       await this.token.distributeToTask(creator, 0, 0, distribution)
+  //       const post = await this.token.getProjectChildContribution(creator, 0)
+  //       assert.equal(post.toNumber(), pre.toNumber() + distribution)
+  //     })
+  //     it('increments task contribtuion of sender', async function () {
+  //       const pre = await this.token.getTaskContributionOf(creator, 0, 0,
+  //         creator)
+  //       await this.token.distributeToTask(creator, 0, 0, distribution)
+  //       const post = await this.token.getTaskContributionOf(creator, 0, 0,
+  //         creator)
+  //       assert.equal(post.toNumber(), pre.toNumber() + distribution)
+  //     })
   //   })
   // })
 
@@ -452,15 +480,15 @@ contract('Demopera', function (accounts) {
   //       {from: submitter})
   //   })
   //   it('sets details on initialization', async function () {
-  //     const DOutput = await this.token.getSubmission(creator, 0, 0, 0)
-  //     assert.equal(DOutput[0], DSub)
+  //     const DOutput = await this.token.getSubmissionDetails(creator, 0, 0, 0)
+  //     assert.equal(DOutput, DSub)
   //   })
   //   it('details can be modified by creator', async function () {
   //     const DInput = formHex.rand(32)
   //     await this.token.modifySubmission(creator, 0, 0, 0, DInput,
   //       {from: submitter})
-  //     const DOutput = await this.token.getSubmission(creator, 0, 0, 0)
-  //     assert.equal(DOutput[0], DInput)
+  //     const DOutput = await this.token.getSubmissionDetails(creator, 0, 0, 0)
+  //     assert.equal(DOutput, DInput)
   //   })
   //   it('reverts modification by non-creator', async function () {
   //     const DInput = formHex.rand(32)
@@ -486,13 +514,15 @@ contract('Demopera', function (accounts) {
   //     })
   //     it('sets payment amount', async function () {
   //       await this.token.disbursePayment(creator, 0, 0, 0, payment)
-  //       const POutput = await this.token.getPayment(creator, 0, 0, submitter)
-  //       assert.equal(POutput[0], payment)
+  //       const POutput = await this.token.getPaymentAmount(creator, 0, 0,
+  //         submitter)
+  //       assert.equal(POutput, payment)
   //     })
   //     it('sets unlock time', async function () {
   //       await this.token.disbursePayment(creator, 0, 0, 0, payment)
-  //       const unlock = await this.token.getPayment(creator, 0, 0, submitter)
-  //       assert.equal(POutput[1], lockout + latestTime())
+  //       const unlock = await this.token.getPaymentUnlockTime(creator, 0, 0,
+  //         submitter)
+  //       assert.equal(unlock, lockout + latestTime())
   //     })
   //   })
   //   describe('Retrieval', function () {
@@ -513,16 +543,24 @@ contract('Demopera', function (accounts) {
   //     })
   //     it('decrements task contribution total', async function () {
   //       await increaseTimeTo(this.endTime)
-  //       const pre = await this.token.getTask(creator, 0, 0)
+  //       const pre = await this.token.getTotalTaskContribution(creator, 0, 0)
   //       await this.token.retrievePayment(creator, 0, 0, {from: submitter})
-  //       const post = await this.token.getTask(creator, 0, 0)
-  //       assert.equal(post[1].toNumber(), pre[1].toNumber() - payment)
+  //       const post = await this.token.getTotalTaskContribution(creator, 0, 0)
+  //       assert.equal(post.toNumber(), pre.toNumber() - payment)
+  //     })
+  //     it('decrements project child contribution total', async function () {
+  //       await increaseTimeTo(this.endTime)
+  //       const pre = await this.token.getProjectChildContribution(creator, 0)
+  //       await this.token.retrievePayment(creator, 0, 0, {from: submitter})
+  //       const post = await this.token.getProjectChildContribution(creator, 0)
+  //       assert.equal(post.toNumber(), pre.toNumber() - payment)
   //     })
   //     it('zeros payment after retrieval', async function () {
   //       await increaseTimeTo(this.endTime)
   //       await this.token.retrievePayment(creator, 0, 0, {from: submitter})
-  //       const POutput = await this.token.getPayment(creator, 0, 0, submitter)
-  //       assert.equal(POutput[0], 0)
+  //       const POutput = await this.token.getPaymentAmount(creator, 0, 0,
+  //         submitter)
+  //       assert.equal(POutput, 0)
   //     })
   //   })
   // })
