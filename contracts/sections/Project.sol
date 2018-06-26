@@ -61,7 +61,7 @@ contract Project is EscrowToken  {
         t.distributed = t.distributed.sub(_amount);
         t.total = t.total.sub(_amount);
         p.total = p.total.add(_amount);
-        p.distributed = p.distributed.add(_amount);
+        /* p.distributed = p.distributed.add(_amount); */ ///????
     }
 
     function disbursePayment(

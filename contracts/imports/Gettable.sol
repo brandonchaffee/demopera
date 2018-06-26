@@ -8,18 +8,18 @@ contract Gettable is GenericStorage  {
     function getProject(
         address _org,
         uint256 _project
-    ) public view returns(bytes32, uint256, uint256, uint256) {
+    ) public view returns(bytes32, uint256, uint256) {
         Project storage p = orgs[_org].projects[_project];
-        return (p.details, p.total, p.contributed, p.distributed);
+        return (p.details, p.total, p.distributed);
     }
 
     function getTask(
         address _org,
         uint256 _project,
         uint256 _task
-    ) public view returns(bytes32, uint256, uint256, uint256) {
+    ) public view returns(bytes32, uint256, uint256) {
         Task storage t = orgs[_org].projects[_project].tasks[_task];
-        return (t.details, t.total, t.contributed, t.distributed);
+        return (t.details, t.total, t.distributed);
     }
 
     function getSubmission(

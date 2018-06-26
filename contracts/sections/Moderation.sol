@@ -3,6 +3,9 @@ pragma solidity ^0.4.23;
 import "../imports/EscrowToken.sol";
 
 contract Moderation is EscrowToken {
+    function empty() public {
+        
+    }
     /* function voteToRemoveAdmin(
         address _org,
         address _target

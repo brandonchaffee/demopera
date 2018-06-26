@@ -6,10 +6,8 @@ contract GenericStorage {
 
     struct Organization {
         bytes32 details;
-        uint256 contributed;
-        //Every contribution increases, every reccall decreases,
-        //distribute to project increases
-        uint256 totalStakes;
+        uint256 total;
+        uint256 stakes;
         mapping(address => Admin) admin;
         mapping(address => uint256) stakeOf;
         mapping(address => uint256) contributionOf;
@@ -24,7 +22,6 @@ contract GenericStorage {
     struct Project {
         bytes32 details;
         uint256 total;
-        uint256 contributed;
         uint256 distributed;
         mapping(address => uint256) contributionOf;
         Task[] tasks;
@@ -33,7 +30,6 @@ contract GenericStorage {
     struct Task {
         bytes32 details;
         uint256 total;
-        uint256 contributed;
         uint256 distributed;
         mapping(address => uint256) contributionOf;
         mapping(address => Payment) payments;
