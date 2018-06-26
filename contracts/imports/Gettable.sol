@@ -44,14 +44,30 @@ contract Gettable is GenericStorage  {
         return (p.amount, p.unlockTime);
     }
 
+    function getAdmin(
+        address _org,
+        address _target
+    ) public view returns(bool, uint256, uint256) {
+        Admin storage a = orgs[_org].admin[_target];
+        return (a.isValid, a.enableVotes, a.disableVotes);
+    }
 
     ////Depth Getter Functions
     //Admin
-    function getAdminStatus(
+    function getAdminEnableVotesOf(
         address _org,
-        address _target
-    ) public view returns(bool){
-        return orgs[_org].admin[_target].isValid;
+        address _target,
+        address _sender
+    ) public view returns(uint256) {
+        return orgs[_org].admin[_target].enableVotesOf[_sender];
+    }
+
+    function getAdminDisableVotesOf(
+        address _org,
+        address _target,
+        address _sender
+    ) public view returns(uint256) {
+        return orgs[_org].admin[_target].disableVotesOf[_sender];
     }
 
     //Contributions

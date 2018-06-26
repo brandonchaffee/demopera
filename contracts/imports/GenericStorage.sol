@@ -16,7 +16,10 @@ contract GenericStorage {
 
     struct Admin {
         bool isValid;
-        uint256 removalVotes;
+        uint256 enableVotes;
+        uint256 disableVotes;
+        mapping(address => uint256) enableVotesOf;
+        mapping(address => uint256) disableVotesOf;
     }
 
     struct Project {

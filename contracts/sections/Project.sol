@@ -61,7 +61,6 @@ contract Project is EscrowToken  {
         t.distributed = t.distributed.sub(_amount);
         t.total = t.total.sub(_amount);
         p.total = p.total.add(_amount);
-        /* p.distributed = p.distributed.add(_amount); */ ///????
     }
 
     function disbursePayment(
@@ -75,5 +74,18 @@ contract Project is EscrowToken  {
         require(t.total >= _amount);
         address submitter = t.submissions[_submission].creator;
         t.payments[submitter] = Payment(_amount, now + paymentLockout);
+    }
+
+    function recallPayment(
+        address _org,
+        uint256 _project,
+        uint256 _task,
+        address _submitter,
+        uint256 _amount
+    ) isAdmin(_org) public {
+        Payment storage p =
+        orgs[_org].projects[_project].tasks[_task].payments[_submitter];
+        require(p.amount >= _amount);
+        p.amount = p.amount.sub(_amount);
     }
 }

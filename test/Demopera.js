@@ -7,7 +7,7 @@ import formHex from './helpers/formHex'
 const Demopera = artifacts.require('./Demopera.sol')
 const permissionBehavior = require('./behaviors/permissionBehavior.js')
 const standardTokenBehavior = require('./behaviors/StandardToken.js')
-// const stateChange = require('./behaviors/stateChange.js')
+const moderationBehavior = require('./behaviors/moderationBehavior.js')
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 const supply = 50000
 const lockout = 10000
@@ -27,6 +27,7 @@ contract('Demopera', function (accounts) {
     this.endTime = latestTime() + duration.days(1)
     this.token = await Demopera.new(supply, lockout)
   })
+
   describe('Organization', function () {
     beforeEach(async function () {
       await this.token.formOrganization(DOrg)
@@ -37,7 +38,8 @@ contract('Demopera', function (accounts) {
       assert.equal(OrgStruct[0], DOrg)
     })
     it('sets sender as admin on initialization', async function () {
-      assert(await this.token.getAdminStatus(creator, creator))
+      const AdminStruct = await this.token.getAdmin(creator, creator)
+      assert(AdminStruct[0])
     })
     it('reverts on reinitailization attempt', async function () {
       await assertRevert(this.token.formOrganization(DOrg))
@@ -343,7 +345,7 @@ contract('Demopera', function (accounts) {
         })
       })
     })
-    describe('Taks', function () {
+    describe('Task', function () {
       beforeEach(async function () {
         await this.token.formOrganization(DOrg)
         await this.token.transfer(spender, 500)
@@ -589,6 +591,8 @@ contract('Demopera', function (accounts) {
   describe('Payment', function () {
     const submitter = accounts[1]
     const payment = 300
+    const recall = 120
+    const excess = 500
     beforeEach(async function () {
       await this.token.formOrganization(DOrg)
       await this.token.createProject(creator, DProject)
@@ -612,7 +616,7 @@ contract('Demopera', function (accounts) {
         assert.equal(POutput[1], lockout + latestTime())
       })
     })
-    describe('Retrieval', function () {
+    describe('Retrieving', function () {
       beforeEach(async function () {
         await this.token.disbursePayment(creator, 0, 0, 0, payment)
       })
@@ -638,15 +642,65 @@ contract('Demopera', function (accounts) {
       it('zeros payment after retrieval', async function () {
         await increaseTimeTo(this.endTime)
         await this.token.retrievePayment(creator, 0, 0, {from: submitter})
-        const POutput = await this.token.getPayment(creator, 0, 0,
-          submitter)
-        assert.equal(POutput[0], 0)
+        const POutput = await this.token.getPayment(creator, 0, 0, submitter)
+        assert.equal(POutput[0].toNumber(), 0)
+      })
+      it('deposits properly when recalled', async function () {
+        await this.token.recallPayment(creator, 0, 0, submitter, recall)
+        await increaseTimeTo(this.endTime)
+        const pre = await this.token.balanceOf(submitter)
+        await this.token.retrievePayment(creator, 0, 0, {from: submitter})
+        const post = await this.token.balanceOf(submitter)
+        const newPayment = payment - recall
+        assert.equal(post.toNumber(), pre.toNumber() + newPayment)
+      })
+    })
+    describe('Recalling', function () {
+      beforeEach(async function () {
+        await this.token.disbursePayment(creator, 0, 0, 0, payment)
+      })
+      it('reverts when exceeds payment amount', async function () {
+        await assertRevert(this.token.recallPayment(creator, 0, 0, submitter,
+          excess))
+      })
+      it('reverts when already retrieved', async function () {
+        await increaseTimeTo(this.endTime)
+        await this.token.retrievePayment(creator, 0, 0, {from: submitter})
+        await assertRevert(this.token.recallPayment(creator, 0, 0, submitter,
+          recall))
+      })
+      it('decrements payment amount', async function () {
+        await this.token.recallPayment(creator, 0, 0, submitter, recall)
+        const POutput = await this.token.getPayment(creator, 0, 0, submitter)
+        assert.equal(POutput[0].toNumber(), payment - recall)
       })
     })
   })
 
   describe('Moderation', function () {
+    const stakers = [accounts[1], accounts[2], accounts[3]]
+    const stakeValues = [1000, 500, 600]
+    const nonAdmin = accounts[4]
+    const rogueAdmin = accounts[5]
+    const stakeIncrease = 200
 
+    beforeEach(async function () {
+      await this.token.formOrganization(DOrg)
+      for (var i = 0; i < stakers.length; ++i) {
+        await this.token.transfer(stakers[i], 1000)
+        await this.token.contributeToOrganization(creator, stakeValues[i],
+          {from: stakers[i]})
+      }
+      await this.token.setAdminStatus(creator, rogueAdmin, true)
+    })
+    describe('Enabling', function () {
+      moderationBehavior('voteOnEnableAdmin', 'getAdminEnableVotesOf', 1,
+        creator, nonAdmin, stakers, stakeValues, stakeIncrease, true)
+    })
+    describe('Disabling', function () {
+      moderationBehavior('voteOnDisableAdmin', 'getAdminDisableVotesOf', 2,
+        creator, rogueAdmin, stakers, stakeValues, stakeIncrease, false)
+    })
   })
 
   standardTokenBehavior(
