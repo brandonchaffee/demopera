@@ -4,6 +4,42 @@ contract GenericStorage {
     uint256 paymentLockout;
     mapping(address => Organization) public orgs;
 
+    struct Organization {
+        bytes32 details;
+        uint256 contributed;
+        //Every contribution increases, every reccall decreases,
+        //distribute to project increases
+        uint256 totalStakes;
+        mapping(address => Admin) admin;
+        mapping(address => uint256) stakeOf;
+        mapping(address => uint256) contributionOf;
+        Project[] projects;
+    }
+
+    struct Admin {
+        bool isValid;
+        uint256 removalVotes;
+    }
+
+    struct Project {
+        bytes32 details;
+        uint256 total;
+        uint256 contributed;
+        uint256 distributed;
+        mapping(address => uint256) contributionOf;
+        Task[] tasks;
+    }
+
+    struct Task {
+        bytes32 details;
+        uint256 total;
+        uint256 contributed;
+        uint256 distributed;
+        mapping(address => uint256) contributionOf;
+        mapping(address => Payment) payments;
+        Submission[] submissions;
+    }
+
     struct Submission {
         bytes32 details;
         address creator;
@@ -13,44 +49,13 @@ contract GenericStorage {
         uint256 unlockTime;
     }
 
-    struct Contribution {
-        uint256 self;
-        uint256 child;
-    }
-
-    struct Admin {
-        bool isValid;
-        uint256 removalVotes;
-    }
-
-    struct Task {
-        bytes32 details;
-        uint256 contributionTotal;
-        mapping(address => Contribution) contributionOf;
-        mapping(address => Payment) payments;
-        Submission[] submissions;
-    }
-
-    struct Project {
-        bytes32 details;
-        uint256 childContributions;
-        uint256 contributionTotal;
-        mapping(address => Admin) admin;
-        mapping(address => Contribution) contributionOf;
-        Task[] tasks;
-    }
-
-    struct Organization {
-        bytes32 details;
-        uint256 childContributions;
-        uint256 contributionTotal;
-        mapping(address => Admin) admin;
-        mapping(address => Contribution) contributionOf;
-        Project[] projects;
-    }
-
     modifier validDetail(bytes32 details) {
         require(details != bytes32(0));
+        _;
+    }
+
+    modifier isAdmin(address _org) {
+        require(orgs[_org].admin[msg.sender].isValid);
         _;
     }
 }

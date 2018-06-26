@@ -3,7 +3,7 @@ pragma solidity ^0.4.23;
 import "../imports/EscrowToken.sol";
 
 contract Organization is EscrowToken  {
-    modifier isOrganizationAdmin(address _org) {
+    modifier isAdmin(address _org) {
         require(orgs[_org].admin[msg.sender].isValid);
         _;
     }
@@ -20,15 +20,15 @@ contract Organization is EscrowToken  {
     function modifyOrganization(
         address _org,
         bytes32 _details
-    ) isOrganizationAdmin(_org) validDetail(_details) public {
+    ) isAdmin(_org) validDetail(_details) public {
         orgs[_org].details = _details;
     }
     //Administration of Organization
-    function setOrgAdminStatus(
+    function setAdminStatus(
         address _org,
         address _admin,
         bool _status
-    ) isOrganizationAdmin(_org) public {
+    ) isAdmin(_org) public {
         orgs[_org].admin[_admin].isValid = _status;
     }
 
@@ -36,11 +36,10 @@ contract Organization is EscrowToken  {
     function createProject(
         address _org,
         bytes32 _details
-    ) isOrganizationAdmin(_org) validDetail(_details) public returns(uint256){
+    ) isAdmin(_org) validDetail(_details) public returns(uint256){
         Organization storage o = orgs[_org];
         uint256 projectID = o.projects.length++;
         o.projects[projectID].details = _details;
-        o.projects[projectID].admin[msg.sender].isValid = true;
         return projectID;
     }
 
@@ -48,15 +47,28 @@ contract Organization is EscrowToken  {
         address _org,
         uint256 _project,
         uint256 _amount
-    ) isOrganizationAdmin(_org) public {
+    ) isAdmin(_org) public {
         Organization storage o = orgs[_org];
-        require(o.contributionTotal >= _amount);
-        o.contributionTotal = o.contributionTotal.sub(_amount);
-        o.childContributions = o.childContributions.add(_amount);
         Project storage p = o.projects[_project];
-        p.contributionTotal = p.contributionTotal.add(_amount);
-        p.contributionOf[msg.sender].self = p.contributionOf[msg.sender].self.add(_amount);
-        o.contributionOf[msg.sender].child =
-        o.contributionOf[msg.sender].child.add(_amount);
+        require(o.contributed >= _amount);
+        o.contributed = o.contributed.sub(_amount);
+        p.distributed = p.distributed.add(_amount);
+        p.total = p.total.add(_amount);
+    }
+
+    function recallProjectDistribution(
+        address _org,
+        uint256 _project,
+        uint256 _amount
+    ) isAdmin(_org) public {
+        Organization storage o = orgs[_org];
+        Project storage p = o.projects[_project];
+        //Can only recall amount that was from distribution
+        require(p.distributed >= _amount);
+        //Can only recall amount if it has not been collect from total
+        require(p.total >= _amount);
+        p.distributed = p.distributed.sub(_amount);
+        p.total = p.total.sub(_amount);
+        o.contributed = o.contributed.add(_amount);
     }
 }

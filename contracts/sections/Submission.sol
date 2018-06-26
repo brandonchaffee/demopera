@@ -33,13 +33,11 @@ contract Submission is EscrowToken  {
         uint256 _project,
         uint256 _task
     ) public {
-        Project storage p = orgs[_org].projects[_project];
-        Task storage t = p.tasks[_task];
+        Task storage t = orgs[_org].projects[_project].tasks[_task];
         require(now > t.payments[msg.sender].unlockTime);
         uint256 _amount = t.payments[msg.sender].amount;
         depositTo(_amount, msg.sender);
-        p.childContributions = p.childContributions.sub(_amount);
-        t.contributionTotal = t.contributionTotal.sub(_amount);
+        t.total = t.total.sub(_amount);
         t.payments[msg.sender].amount = 0;
     }
 }

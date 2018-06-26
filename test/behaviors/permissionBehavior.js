@@ -12,11 +12,11 @@ function permissionBehavior (
 ) {
   describe('Organization' + textResult(OExpect), function () {
     it('enable admins', async function () {
-      await OExpect(this.token.setOrgAdminStatus(org, target, true,
+      await OExpect(this.token.setAdminStatus(org, target, true,
         {from: sender}))
     })
     it('disable admins', async function () {
-      await OExpect(this.token.setOrgAdminStatus(org, target, false,
+      await OExpect(this.token.setAdminStatus(org, target, false,
         {from: sender}))
     })
     it('modify details', async function () {
@@ -38,14 +38,6 @@ function permissionBehavior (
     })
   })
   describe('Project' + textResult(PExpect), function () {
-    it('enable admins', async function () {
-      await PExpect(this.token.setProjectAdminStatus(org, 0, target, true,
-        {from: sender}))
-    })
-    it('disable admins', async function () {
-      await PExpect(this.token.setProjectAdminStatus(org, 0, target, false,
-        {from: sender}))
-    })
     it('modify details', async function () {
       const details = formHex.rand(32)
       await PExpect(this.token.modifyProject(org, 0, details, {from: sender}))

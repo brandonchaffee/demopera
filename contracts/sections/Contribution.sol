@@ -10,9 +10,11 @@ contract Contribution is EscrowToken  {
     ) public {
         hasSufficientBalance(_amount);
         Organization storage o = orgs[_org];
-        o.contributionOf[msg.sender].self =
-        o.contributionOf[msg.sender].self.add(_amount);
-        o.contributionTotal = o.contributionTotal.add(_amount);
+        o.contributed = o.contributed.add(_amount);
+        o.contributionOf[msg.sender] =
+        o.contributionOf[msg.sender].add(_amount);
+        o.stakeOf[msg.sender] = o.stakeOf[msg.sender].add(_amount);
+        o.totalStakes = o.totalStakes.add(_amount);
         withdrawFrom(_amount, msg.sender);
     }
 
@@ -24,12 +26,12 @@ contract Contribution is EscrowToken  {
         hasSufficientBalance(_amount);
         Organization storage o = orgs[_org];
         Project storage p = o.projects[_project];
-        p.contributionOf[msg.sender].self =
-        p.contributionOf[msg.sender].self.add(_amount);
-        o.contributionOf[msg.sender].child =
-        o.contributionOf[msg.sender].child.add(_amount);
-        p.contributionTotal = p.contributionTotal.add(_amount);
-        o.childContributions = o.childContributions.add(_amount);
+        p.total = p.total.add(_amount);
+        p.contributed = p.contributed.add(_amount);
+        p.contributionOf[msg.sender] =
+        p.contributionOf[msg.sender].add( _amount);
+        o.stakeOf[msg.sender] = o.stakeOf[msg.sender].add(_amount);
+        o.totalStakes = o.totalStakes.add(_amount);
         withdrawFrom(_amount, msg.sender);
     }
 
@@ -40,27 +42,32 @@ contract Contribution is EscrowToken  {
         uint256 _amount
     ) public {
         hasSufficientBalance(_amount);
-        Project storage p = orgs[_org].projects[_project];
-        Task storage t = p.tasks[_task];
-        t.contributionOf[msg.sender].self =
-        t.contributionOf[msg.sender].self.add(_amount);
-        p.contributionOf[msg.sender].child =
-        p.contributionOf[msg.sender].child.add(_amount);
-        t.contributionTotal = t.contributionTotal.add(_amount);
-        p.childContributions = p.childContributions.add(_amount);
+        Organization storage o = orgs[_org];
+        Task storage t = o.projects[_project].tasks[_task];
+        t.total = t.total.add(_amount);
+        t.contributed = t.contributed.add(_amount);
+        t.contributionOf[msg.sender] =
+        t.contributionOf[msg.sender].add( _amount);
+        o.stakeOf[msg.sender] = o.stakeOf[msg.sender].add(_amount);
+        o.totalStakes = o.totalStakes.add(_amount);
         withdrawFrom(_amount, msg.sender);
     }
 
-    function recallOrgContribution(
+    //Recall Contribution
+    function recallOrganizationContribution(
         address _org,
         uint256 _amount
     ) public {
         Organization storage o = orgs[_org];
-        require(o.contributionOf[msg.sender].self >= _amount);
-        require(o.contributionTotal >= _amount);
-        o.contributionTotal = o.contributionTotal.sub(_amount);
-        o.contributionOf[msg.sender].self =
-        o.contributionOf[msg.sender].self.sub(_amount);
+        //Not more than contributed by sender
+        require(o.contributionOf[msg.sender] >= _amount);
+        //Has not been distributed
+        require(o.contributed >= _amount);
+        o.contributionOf[msg.sender] =
+        o.contributionOf[msg.sender].sub(_amount);
+        o.contributed = o.contributed.sub(_amount);
+        o.stakeOf[msg.sender] = o.stakeOf[msg.sender].sub(_amount);
+        o.totalStakes = o.totalStakes.sub(_amount);
         depositTo(_amount, msg.sender);
     }
 
@@ -70,15 +77,19 @@ contract Contribution is EscrowToken  {
         uint256 _amount
     ) public {
         Organization storage o = orgs[_org];
-        Project storage p = o.projects[_project];
-        require(p.contributionOf[msg.sender].self >= _amount);
-        require(p.contributionTotal >= _amount);
-        p.contributionTotal = p.contributionTotal.sub(_amount);
-        o.childContributions = o.childContributions.sub(_amount);
-        p.contributionOf[msg.sender].self =
-        p.contributionOf[msg.sender].self.sub(_amount);
-        o.contributionOf[msg.sender].child =
-        o.contributionOf[msg.sender].child.sub(_amount);
+        Project storage p = orgs[_org].projects[_project];
+        //Not more than contributed by sender
+        require(p.contributionOf[msg.sender] >= _amount);
+        //Does not exceed contributed amount
+        require(p.contributed >= _amount);
+        //Still has enough after distribution
+        require(p.total >= _amount);
+        p.total = p.total.sub(_amount);
+        p.contributionOf[msg.sender] =
+        p.contributionOf[msg.sender].sub(_amount);
+        p.contributed = p.contributed.sub(_amount);
+        o.stakeOf[msg.sender] = o.stakeOf[msg.sender].sub(_amount);
+        o.totalStakes = o.totalStakes.sub(_amount);
         depositTo(_amount, msg.sender);
     }
 
@@ -88,16 +99,20 @@ contract Contribution is EscrowToken  {
         uint256 _task,
         uint256 _amount
     ) public {
-        Project storage p = orgs[_org].projects[_project];
-        Task storage t = p.tasks[_task];
-        require(t.contributionOf[msg.sender].self >= _amount);
-        require(t.contributionTotal >= _amount);
-        t.contributionTotal = t.contributionTotal.sub(_amount);
-        p.childContributions = p.childContributions.sub(_amount);
-        t.contributionOf[msg.sender].self =
-        t.contributionOf[msg.sender].self.sub(_amount);
-        p.contributionOf[msg.sender].child =
-        p.contributionOf[msg.sender].child.sub(_amount);
+        Organization storage o = orgs[_org];
+        Task storage t = orgs[_org].projects[_project].tasks[_task];
+        //Not more than contributed by sender
+        require(t.contributionOf[msg.sender] >= _amount);
+        //Does not exceed contributed amount
+        require(t.contributed >= _amount);
+         //Still has enough after distribution
+        require(t.total >= _amount);
+        t.total = t.total.sub(_amount);
+        t.contributionOf[msg.sender] =
+        t.contributionOf[msg.sender].sub(_amount);
+        t.contributed = t.contributed.sub(_amount);
+        o.stakeOf[msg.sender] = o.stakeOf[msg.sender].sub(_amount);
+        o.totalStakes = o.totalStakes.sub(_amount);
         depositTo(_amount, msg.sender);
     }
 }
