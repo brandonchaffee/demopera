@@ -4,12 +4,12 @@
   "description": "Ethereum based open source project and organization accountability and contribution system",
   "main": "truffle-config.js",
   "scripts": {
-      "test": "scripts/test.sh",
-      "test-windows": ".\\scripts\\test.sh",
-      "lint": "eslint .",
-      "lint:fix": "eslint . --fix",
-      "lint:sol": "solium -d .",
-      "lint:sol:fix": "solium -d . --fix"
+    "test": "scripts/test.sh",
+    "test-windows": ".\\scripts\\test.sh",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "lint:sol": "solium -d .",
+    "lint:sol:fix": "solium -d . --fix"
   },
   "repository": {
     "type": "git",
