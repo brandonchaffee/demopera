@@ -1,5 +1,5 @@
 {
-  "name": "demopera",
+  "name": "expopulo",
   "version": "1.0.0",
   "description": "Ethereum based open source project and organization accountability and contribution system",
   "main": "truffle-config.js",
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/brandonchaffee/demopera.git"
+    "url": "git+https://github.com/brandonchaffee/expopulo.git"
   },
   "keywords": [
     "Ethereum"
@@ -21,9 +21,9 @@
   "author": "Brandon Chaffee",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/brandonchaffee/demopera/issues"
+    "url": "https://github.com/brandonchaffee/expopulo/issues"
   },
-  "homepage": "https://github.com/brandonchaffee/demopera#readme",
+  "homepage": "https://github.com/brandonchaffee/expopulo#readme",
   "dependencies": {
     "ganache-cli": "^6.1.0",
     "truffle": "^4.1.9"

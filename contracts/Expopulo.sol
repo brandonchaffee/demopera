@@ -7,7 +7,7 @@ import "./sections/Contribution.sol";
 import "./sections/Moderation.sol";
 import "./imports/Gettable.sol";
 
-contract Demopera is
+contract Expopulo is
     Organization,
     Project,
     Submission,

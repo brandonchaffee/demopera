@@ -1,5 +1,5 @@
-var Demopera = artifacts.require('./Demopera.sol')
+var Expopulo = artifacts.require('./Expopulo.sol')
 
 module.exports = function (deployer) {
-  deployer.deploy(Demopera, 5000000, 10000)
+  deployer.deploy(Expopulo, 5000000, 10000)
 }

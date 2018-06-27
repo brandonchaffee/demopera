@@ -4,7 +4,7 @@ import latestTime from './helpers/latestTime'
 import assertRevert from './helpers/assertRevert'
 import formHex from './helpers/formHex'
 
-const Demopera = artifacts.require('./Demopera.sol')
+const Expopulo = artifacts.require('./Expopulo.sol')
 const permissionBehavior = require('./behaviors/permissionBehavior.js')
 const standardTokenBehavior = require('./behaviors/StandardToken.js')
 const moderationBehavior = require('./behaviors/moderationBehavior.js')
@@ -16,7 +16,7 @@ const DProject = formHex.rand(32)
 const DTask = formHex.rand(32)
 const DSub = formHex.rand(32)
 
-contract('Demopera', function (accounts) {
+contract('Expopulo', function (accounts) {
   const creator = accounts[0]
   const admin = accounts[1]
   const pID = 0
@@ -25,7 +25,7 @@ contract('Demopera', function (accounts) {
     await advanceBlock()
     this.midTime = latestTime() + duration.minutes(10)
     this.endTime = latestTime() + duration.days(1)
-    this.token = await Demopera.new(supply, lockout)
+    this.token = await Expopulo.new(supply, lockout)
   })
 
   describe('Organization', function () {
