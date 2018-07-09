@@ -9,12 +9,15 @@ contract Organization is EscrowToken  {
     }
 
     ///Creation of Organization
+    event OrganizationFormed(address creator);
+
     function formOrganization(bytes32 _details)
     validDetail(_details) public {
         Organization storage o = orgs[msg.sender];
         require(o.details == bytes32(0));
         o.details = _details;
         o.admin[msg.sender].isValid = true;
+        emit OrganizationFormed(msg.sender);
     }
 
     function modifyOrganization(
@@ -33,6 +36,7 @@ contract Organization is EscrowToken  {
     }
 
     //Organization Project Creation & Maintainence
+    event ProjectCreated(address indexed creator, uint256 id);
     function createProject(
         address _org,
         bytes32 _details
@@ -40,6 +44,7 @@ contract Organization is EscrowToken  {
         Organization storage o = orgs[_org];
         uint256 projectID = o.projects.length++;
         o.projects[projectID].details = _details;
+        emit ProjectCreated(_org, projectID);
         return projectID;
     }
 

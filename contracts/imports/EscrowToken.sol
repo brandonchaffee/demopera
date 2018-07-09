@@ -8,11 +8,16 @@ contract EscrowToken is StandardToken, GenericStorage {
 		require(balances[msg.sender] >= _amount);
 	}
 
+	event Withdrawn(address indexed from, uint256 amount);
+
 	function withdrawFrom(uint256 _amount, address _target) internal {
 		balances[_target] = balances[_target].sub(_amount);
+		emit Withdrawn(_target, _amount);
 	}
+	event Deposited(address indexed to, uint256 amount);
 
 	function depositTo(uint256 _amount, address _target) internal {
         balances[_target] = balances[_target].add(_amount);
+		emit Deposited(_target, _amount);
 	}
 }

@@ -11,6 +11,8 @@ contract Project is EscrowToken  {
         orgs[_org].projects[_project].details = _details;
     }
 
+    event TaskCreated(address indexed org, uint256 indexed project, uint256 id);
+
     function createTask(
         address _org,
         uint256 _project,
@@ -19,6 +21,7 @@ contract Project is EscrowToken  {
         Project storage p = orgs[_org].projects[_project];
         uint256 taskID = p.tasks.length++;
         p.tasks[taskID].details = _details;
+        emit TaskCreated(_org, _project, taskID);
         return taskID;
     }
 
