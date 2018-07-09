@@ -1,6 +1,6 @@
 {
   "name": "expopulo",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Ethereum based open source project and organization accountability and contribution system",
   "main": "truffle-config.js",
   "scripts": {
