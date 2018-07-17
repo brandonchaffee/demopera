@@ -15,7 +15,7 @@ ID                  ETf1
 Name                ``hasSufficientBalance``
 
 Description         | Requirement function for determining whether or not sender has sufficient balance
-                    | for an escrow withdrawl.
+                    | for an escrow withdrawal.
 
 
 Contract            ``EscrowToken.sol``
@@ -25,7 +25,7 @@ Emits               *None*
 Parameters          | ``uint256`` **_amount** -- amount to be assessed for withdrawl
 
 
-Requirements        - Sender must have a balance greater than or equal to the amount for withdrawl
+Requirements        - Sender must have a balance greater than or equal to the amount for withdrawal
 
 Returns             ``bool`` success of sufficient balance
 ================    ====================================================
@@ -38,7 +38,7 @@ ID                  ETf2
 Name                ``withdrawFrom``
 
 Description         | Escrow function for withdrawing a balance amount from the targeted address, in
-                    | order to be hold in escrow. This function is used when contributing to organzation,
+                    | order to be held in escrow. This function is used when contributing to organizations,
                     | projects, and tasks.
 
 
@@ -64,7 +64,7 @@ Name                ``depositTo``
 
 Description         | Escrow function for depositing a balance amount to the targeted address, in order to
                     | release from escrow. This function is used when disbursing payments and recalling
-                    | contributions to organzation, projects, and tasks.
+                    | contributions to organizations, projects, and tasks.
 
 Contract            ``EscrowToken.sol``
 
@@ -86,7 +86,7 @@ ID                  Of1
 Name                ``formOrganization``
 
 Description         | Initialization function used to create organization tied to the sender's address.
-                    | This is done by initializing the organizations detail hash. Once this function has been
+                    | This is done by initializing the organization's detail hash. Once this function has been
                     | called it cannot be called again, so as to avoid organization destruction. This
                     | initializes the sender as the admin of the organization.
 
@@ -213,7 +213,7 @@ ID                  Of6
 ================    ====================================================
 Name                ``recallProjectDistribution``
 
-Description         | Recalls distributed value contributed to an project back to the organization. This can
+Description         | Recalls distributed value contributed to a project back to the organization. This can
                     | be used to return value back to contributors or redistribute to other organization
                     | projects. This increases the total value associated with the organization and decreases
                     | the total value distributed and associated with the project.
@@ -267,7 +267,7 @@ ID                  Pf2
 ================    ====================================================
 Name                ``createTask``
 
-Description         | Initialization function used to create an project tasks. This is done by
+Description         | Initialization function used to create a project task. This is done by
                     | initializing a **GSs6** with the task detail hash into the task array of
                     | the project.
 
@@ -379,10 +379,10 @@ ID                  Pf6
 ================    ====================================================
 Name                ``disbursePayment``
 
-Description         | Disburses payment to a specific submission of a task. This initailizes a **GSs8**
+Description         | Disburses payment to a specific submission of a task. This initializes a **GSs8**
                     | with the amount being disbursed and the release time from when the function is
                     | called with the addition of the buffer provided by **GSs1**. This delay is to avoid
-                    | any malicious payment situation and allow for recalling and / or readministration.
+                    | any malicious payment situation and allow for recalling and / or re-administration.
 
 
 Contract            ``Project.sol``
@@ -411,7 +411,7 @@ Name                ``recallPayment``
 
 Description         | Recalls payment to a specific submission of a task. This is used to undo a
                     | disbursement to a submission. If the payment has already been retrieved by the
-                    | submitter this will have  no effect. However, if it has not been retrieved , this will
+                    | submitter this will have no effect. However, if it has not been retrieved , this will
                     | set the payment value of the disbursement to zero.
 
 
@@ -439,7 +439,7 @@ ID                  Sf1
 ================    ====================================================
 Name                ``createSubmission``
 
-Description         | Initialization function used to create an task submission. This is done by
+Description         | Initialization function used to create a task submission. This is done by
                     | initializing a **GSs7** with the submission detail hash into the submission array of
                     | the task.
 
@@ -573,9 +573,9 @@ ID                  Cf1
 Name                ``contributeToOrganization``
 
 Description         | Contributes value to an organization by withdrawing from the sender and holding it in
-                    | escrow for eventual release to submitter's of tasks. This contribution increments the
-                    | sender's stake of the organization and increments the total value associated with the
-                    | organization.
+                    | escrow for eventual release to the submitter of tasks. This contribution increments
+                    | the sender's stake of the organization and increments the total value associated with
+                    | the organization.
 
 
 Contract            ``Contribution.sol``
@@ -599,9 +599,9 @@ ID                  Cf2
 Name                ``contributeToProject``
 
 Description         | Contributes value to a project by withdrawing from the sender and holding it in
-                    | escrow for eventual release to submitter's of tasks. This contribution increments the
-                    | sender's stake of the organization and increments the total value associated with the
-                    | project.
+                    | escrow for eventual release to the submitter of tasks. This contribution increments
+                    | the sender's stake of the organization and increments the total value associated with
+                    | the project.
 
 
 Contract            ``Contribution.sol``
@@ -626,9 +626,9 @@ ID                  Cf3
 Name                ``contributeToTask``
 
 Description         | Contributes value to a task by withdrawing from the sender and holding it in
-                    | escrow for eventual release to submitter's of tasks. This contribution increments the
-                    | sender's stake of the organization and increments the total value associated with the
-                    | task.
+                    | escrow for eventual release to the submitter of tasks. This contribution increments
+                    | the sender's stake of the organization and increments the total value associated with
+                    | the task.
 
 
 Contract            ``Contribution.sol``
@@ -667,7 +667,7 @@ Parameters          | ``address`` **_org** -- organization targeted for recall
 
 
 Requirements        - Recall amount must not exceed contribution made by sender
-                    - Recall amount must not exceed total value associated with organization
+                    - Recall amount must not exceed total value associated with the organization
 
 Returns             *None*
 ================    ====================================================
@@ -679,9 +679,9 @@ ID                  Cf5
 ================    ====================================================
 Name                ``recallProjectContribution``
 
-Description         | Balance transfer function equivalent to StandardToken's ``transfer`` with the addition
-                    | of the requirement that the sender cannot be currently in a vote so as to maintain the
-                    | proper amount of voting rights.
+Description         | Recalls contributed value from a project by withdrawing from the project
+                    | and depositing it back to the sender. This recall decrements the sender's stake of
+                    | the organization and decrements the total value associated with the project.
 
 
 Contract            ``Contribution.sol``
@@ -706,9 +706,9 @@ ID                  Cf6
 ================    ====================================================
 Name                ``recallTaskContribution``
 
-Description         | Balance transfer function equivalent to StandardToken's ``transfer`` with the addition
-                    | of the requirement that the sender cannot be currently in a vote so as to maintain the
-                    | proper amount of voting rights.
+Description         | Recalls contributed value from an organization by withdrawing from the task
+                    | and depositing it back to the sender. This recall decrements the sender's stake of
+                    | the organization and decrements the total value associated with the task.
 
 
 Contract            ``Contribution.sol``
@@ -728,6 +728,7 @@ Returns             *None*
 ================    ====================================================
 
 
+
 Structures
 ~~~~~~~~~~
 
@@ -738,7 +739,7 @@ Name                ``paymentLockout``
 
 Contract            ``GenericStorage.sol``
 
-Description         | Time value in seconds from when payment is dibursed by an admin to when it can be
+Description         | Time value in seconds from when payment is disbursed by an admin to when it can be
                     | retrieved by the submitter.
 
 Type                ``uint256``
@@ -753,8 +754,8 @@ Name                ``orgs``
 
 Contract            ``GenericStorage.sol``
 
-Description         | Mapping of orgs as idenitified by the address of the creator, organizing all information
-                    | pertraining to an organization.
+Description         | Mapping of organizations as identified by the address of the creator, organizing all
+                    | information pertaining to an organization.
 
 Type                mapping of ``address`` to **GSs3**
 ================    ====================================================
@@ -769,7 +770,7 @@ Name                ``Organization``
 Contract            ``GenericStorage.sol``
 
 Description         | Struct containing all pertinent information for a formed organization. This includes the
-                    | detail hash of the organization, the total amount contribtued to the organization, a
+                    | detail hash of the organization, the total amount contributed to the organization, a
                     | mapping of admin addresses, a mapping of individual stakes to the organization, a
                     | mapping of contributors to the organization, and an array of all projects created by
                     | the organization.
@@ -788,7 +789,7 @@ Contract            ``GenericStorage.sol``
 
 Description         | Struct containing all pertinent information for an admin. This includes the current
                     | validity status of the admin, the vote accounting for enabling and disabling the admin,
-                    | and the inidivudal vote accounts on this admin.
+                    | and the individual vote accounts on this admin.
 
 Type                ``struct``
 ================    ====================================================
@@ -867,7 +868,7 @@ Name                ``validDetail``
 Contract            ``GenericStorage.sol``
 
 Description         | Modifier function for requiring that the modifications to any content does not
-                    | uninitialize that content, by setting the detials to 0. This function is used by all
+                    | deinitialize that content, by setting the details to 0. This function is used by all
                     | content creation and modification functions.
 
 Type                ``modifier``
