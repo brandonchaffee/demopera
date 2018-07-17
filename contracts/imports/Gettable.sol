@@ -4,7 +4,12 @@ import "./GenericStorage.sol";
 
 contract Gettable is GenericStorage  {
 
-    //Structure Getter Functions
+    /*
+        Each of these functions is used to get the value of an element within
+        a nested array of a structure from the parent organization
+    */
+
+    //Structure Getter
     function getProject(
         address _org,
         uint256 _project

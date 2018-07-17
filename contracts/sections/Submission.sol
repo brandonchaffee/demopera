@@ -10,6 +10,7 @@ contract Submission is EscrowToken  {
         uint256 submission
     );
 
+    // Sf1 (Appendix)
     function createSubmission(
         address _org,
         uint256 _project,
@@ -24,6 +25,7 @@ contract Submission is EscrowToken  {
         return submissionID;
     }
 
+    // Sf2 (Appendix)
     function modifySubmission(
         address _org,
         uint256 _project,
@@ -36,6 +38,7 @@ contract Submission is EscrowToken  {
         t.submissions[_submission].details = _details;
     }
 
+    // Sf3 (Appendix)
     function retrievePayment(
         address _org,
         uint256 _project,

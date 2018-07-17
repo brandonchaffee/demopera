@@ -3,6 +3,7 @@ pragma solidity ^0.4.23;
 import "../imports/EscrowToken.sol";
 
 contract Moderation is EscrowToken {
+    // Mf1 (Appendix)
     function voteOnEnableAdmin(
         address _org,
         address _target,
@@ -24,6 +25,7 @@ contract Moderation is EscrowToken {
         a.isValid = a.enableVotes * 2 >= orgs[_org].stakes;
     }
 
+    // Mf2 (Appendix)
     function voteOnDisableAdmin(
         address _org,
         address _target,

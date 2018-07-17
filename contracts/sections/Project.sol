@@ -3,6 +3,7 @@ pragma solidity ^0.4.23;
 import "../imports/EscrowToken.sol";
 
 contract Project is EscrowToken  {
+    // Pf1 (Appendix)
     function modifyProject(
         address _org,
         uint256 _project,
@@ -13,6 +14,7 @@ contract Project is EscrowToken  {
 
     event TaskCreated(address indexed org, uint256 indexed project, uint256 id);
 
+    // Pf2 (Appendix)
     function createTask(
         address _org,
         uint256 _project,
@@ -25,6 +27,7 @@ contract Project is EscrowToken  {
         return taskID;
     }
 
+    // Pf3 (Appendix)
     function modifyTask(
         address _org,
         uint256 _project,
@@ -35,6 +38,7 @@ contract Project is EscrowToken  {
         p.tasks[_task].details = _details;
     }
 
+    // Pf4 (Appendix)
     function distributeToTask(
         address _org,
         uint256 _project,
@@ -49,6 +53,7 @@ contract Project is EscrowToken  {
         t.distributed = t.distributed.add(_amount);
     }
 
+    // Pf5 (Appendix)
     function recallTaskDistribution(
         address _org,
         uint256 _project,
@@ -66,6 +71,7 @@ contract Project is EscrowToken  {
         p.total = p.total.add(_amount);
     }
 
+    // Pf6 (Appendix)
     function disbursePayment(
         address _org,
         uint256 _project,
@@ -79,6 +85,7 @@ contract Project is EscrowToken  {
         t.payments[submitter] = Payment(_amount, now + paymentLockout);
     }
 
+    // Pf7 (Appendix)
     function recallPayment(
         address _org,
         uint256 _project,

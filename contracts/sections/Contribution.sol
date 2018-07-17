@@ -4,6 +4,7 @@ import "../imports/EscrowToken.sol";
 
 contract Contribution is EscrowToken  {
 
+    // Cf1 (Appendix)
     function contributeToOrganization(
         address _org,
         uint256 _amount
@@ -18,6 +19,7 @@ contract Contribution is EscrowToken  {
         withdrawFrom(_amount, msg.sender);
     }
 
+    // Cf2 (Appendix)
     function contributeToProject(
         address _org,
         uint256 _project,
@@ -34,6 +36,7 @@ contract Contribution is EscrowToken  {
         withdrawFrom(_amount, msg.sender);
     }
 
+    // Cf3 (Appendix)
     function contributeToTask(
         address _org,
         uint256 _project,
@@ -51,7 +54,7 @@ contract Contribution is EscrowToken  {
         withdrawFrom(_amount, msg.sender);
     }
 
-    //Recall Contribution
+    // Cf4 (Appendix)
     function recallOrganizationContribution(
         address _org,
         uint256 _amount
@@ -69,6 +72,7 @@ contract Contribution is EscrowToken  {
         depositTo(_amount, msg.sender);
     }
 
+    // Cf5 (Appendix)
     function recallProjectContribution(
         address _org,
         uint256 _project,
@@ -88,6 +92,7 @@ contract Contribution is EscrowToken  {
         depositTo(_amount, msg.sender);
     }
 
+    // Cf6 (Appendix)
     function recallTaskContribution(
         address _org,
         uint256 _project,

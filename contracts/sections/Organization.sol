@@ -3,14 +3,10 @@ pragma solidity ^0.4.23;
 import "../imports/EscrowToken.sol";
 
 contract Organization is EscrowToken  {
-    modifier isAdmin(address _org) {
-        require(orgs[_org].admin[msg.sender].isValid);
-        _;
-    }
-
     ///Creation of Organization
     event OrganizationFormed(address creator);
 
+    // Of1 (Appendix)
     function formOrganization(bytes32 _details)
     validDetail(_details) public {
         Organization storage o = orgs[msg.sender];
@@ -20,13 +16,15 @@ contract Organization is EscrowToken  {
         emit OrganizationFormed(msg.sender);
     }
 
+    // Of2 (Appendix)
     function modifyOrganization(
         address _org,
         bytes32 _details
     ) isAdmin(_org) validDetail(_details) public {
         orgs[_org].details = _details;
     }
-    //Administration of Organization
+
+    // Of3 (Appendix)
     function setAdminStatus(
         address _org,
         address _admin,
@@ -35,8 +33,9 @@ contract Organization is EscrowToken  {
         orgs[_org].admin[_admin].isValid = _status;
     }
 
-    //Organization Project Creation & Maintainence
     event ProjectCreated(address indexed creator, uint256 id);
+
+    // Of4 (Appendix)
     function createProject(
         address _org,
         bytes32 _details
@@ -48,6 +47,7 @@ contract Organization is EscrowToken  {
         return projectID;
     }
 
+    // Of5 (Appendix)
     function distributeToProject(
         address _org,
         uint256 _project,
@@ -61,6 +61,7 @@ contract Organization is EscrowToken  {
         p.total = p.total.add(_amount);
     }
 
+    // Of6 (Appendix)
     function recallProjectDistribution(
         address _org,
         uint256 _project,
