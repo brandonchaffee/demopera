@@ -17,7 +17,7 @@ Contents
    :maxdepth: 2
 
    intro.rst
-   structure.rst
+   basics.rst
    appendix.rst
 
 

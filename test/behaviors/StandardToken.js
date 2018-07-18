@@ -1,3 +1,7 @@
+/*
+    Author: OpenZeppelin
+*/
+
 import assertRevert from '../helpers/assertRevert'
 
 function standardTokenBehavior (
